@@ -49,9 +49,20 @@ const ComponentExporter = ({ components, brandConfig, onBack }) => {
     }, null, 2);
   };
 
+  // Helper function to darken colors for hover states
+  const darkenColor = (hex, percent) => {
+    const num = parseInt(hex.replace("#", ""), 16);
+    const amt = Math.round(2.55 * percent);
+    const R = Math.max(0, Math.min(255, (num >> 16) + amt));
+    const G = Math.max(0, Math.min(255, (num >> 8 & 0x00FF) + amt));
+    const B = Math.max(0, Math.min(255, (num & 0x0000FF) + amt));
+    return "#" + ((R << 16) | (G << 8) | B).toString(16).padStart(6, '0');
+  };
+
   const generateTailwindConfig = () => {
     return `/** @type {import('tailwindcss').Config} */
 module.exports = {
+  mode: 'jit',
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
@@ -59,9 +70,15 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          primary: '${brandConfig.primaryColor}',
-          secondary: '${brandConfig.secondaryColor}',
-          accent: '${brandConfig.accentColor}',
+          primary: 'var(--brand-primary)',
+          secondary: 'var(--brand-secondary)',
+          accent: 'var(--brand-accent)',
+          'primary-hover': 'var(--brand-primary-hover)',
+          'secondary-hover': 'var(--brand-secondary-hover)',
+          'accent-hover': 'var(--brand-accent-hover)',
+          'primary-text': 'var(--brand-primary-text)',
+          'secondary-text': 'var(--brand-secondary-text)',
+          'accent-text': 'var(--brand-accent-text)',
         }
       },
       fontFamily: {
@@ -431,17 +448,40 @@ Default.args = {
       // Add variant constants file
       srcFolder.file('variants.ts', generateVariantsFile());
       
-      // Add CSS file with magic animations
-      srcFolder.file('styles.css', `@tailwind base;
+      // Add globals.css with CSS custom properties
+      srcFolder.file('globals.css', `@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ${brandConfig.companyName} Brand Styles */
-:root {
-  --brand-primary: ${brandConfig.primaryColor};
-  --brand-secondary: ${brandConfig.secondaryColor};
-  --brand-accent: ${brandConfig.accentColor};
-  --brand-font: '${brandConfig.fontFamily}';
+@layer base {
+  :root {
+    /* ${brandConfig.companyName} Brand Colors */
+    --brand-primary: ${brandConfig.primaryColor};
+    --brand-secondary: ${brandConfig.secondaryColor};
+    --brand-accent: ${brandConfig.accentColor};
+    --brand-primary-hover: ${darkenColor(brandConfig.primaryColor, -25)};
+    --brand-secondary-hover: ${darkenColor(brandConfig.secondaryColor, -25)};
+    --brand-accent-hover: ${darkenColor(brandConfig.accentColor, -25)};
+    --brand-primary-text: ${brandConfig.primaryColor};
+    --brand-secondary-text: ${brandConfig.secondaryColor};
+    --brand-accent-text: ${brandConfig.accentColor};
+  }
+}
+
+@layer base {
+  body {
+    margin: 0;
+    font-family: '${brandConfig.fontFamily}', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+      monospace;
+  }
 }
 
 ${components.magicAnimations || ''}`);
@@ -619,7 +659,7 @@ export default {
                 <div className="ml-4">└── src/</div>
                 <div className="ml-8">├── index.ts</div>
                 <div className="ml-8">├── types.ts</div>
-                <div className="ml-8">├── styles.css</div>
+                <div className="ml-8">├── globals.css</div>
                 <div className="ml-8">└── components/</div>
                 {Object.keys(components.components).map(componentName => (
                   <div key={componentName} className="ml-12">

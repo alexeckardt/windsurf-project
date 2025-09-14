@@ -1,16 +1,23 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  mode: 'jit',
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
   ],
   theme: {
     extend: {
       colors: {
-        // Dynamic brand colors will be injected here
+        // Dynamic brand colors using CSS custom properties
         brand: {
-          primary: '#3B82F6',
-          secondary: '#64748B',
-          accent: '#F59E0B',
+          primary: 'var(--brand-primary)',
+          secondary: 'var(--brand-secondary)',
+          accent: 'var(--brand-accent)',
+          'primary-hover': 'var(--brand-primary-hover)',
+          'secondary-hover': 'var(--brand-secondary-hover)',
+          'accent-hover': 'var(--brand-accent-hover)',
+          'primary-text': 'var(--brand-primary-text)',
+          'secondary-text': 'var(--brand-secondary-text)',
+          'accent-text': 'var(--brand-accent-text)',
           success: '#10B981',
           warning: '#F59E0B',
           error: '#EF4444',
@@ -58,6 +65,23 @@ module.exports = {
     },
     {
       pattern: /focus:ring-\[#[0-9a-fA-F]{6}\]/,
-    }
+    },
+    // Include arbitrary shadow values for magic effects
+    {
+      pattern: /shadow-\[0_0_\d+px_rgba\(\d+,\d+,\d+,[\d.]+\)\]/,
+    },
+    {
+      pattern: /hover:shadow-\[0_0_\d+px_rgba\(\d+,\d+,\d+,[\d.]+\)\]/,
+    },
+    // Magic button classes
+    'animate-pulse',
+    'animate-bounce',
+    'hover:scale-105',
+    'transition-all',
+    'duration-300',
+    'duration-500',
+    'magic-glow-purple',
+    'magic-glow-indigo',
+    'magic-glow-rainbow'
   ]
 }

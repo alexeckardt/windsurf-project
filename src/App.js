@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import './index.css';
 import BrandInputForm from './components/BrandInputForm';
 import ComponentPreview from './components/ComponentPreview';
 import ComponentExporter from './components/ComponentExporter';
-import { generateComponentLibrary } from './utils/componentGenerator';
+import { generateComponentLibrary } from './utils/componentGenerator.ts';
 
 function App() {
   const [brandConfig, setBrandConfig] = useState(null);
@@ -11,6 +12,34 @@ function App() {
 
   const handleBrandSubmit = (config) => {
     setBrandConfig(config);
+    
+    // Update CSS custom properties for brand colors
+    if (config.primaryColor) {
+      document.documentElement.style.setProperty('--brand-primary', config.primaryColor);
+      document.documentElement.style.setProperty('--brand-secondary', config.secondaryColor);
+      document.documentElement.style.setProperty('--brand-accent', config.accentColor);
+      
+      // Calculate and set hover colors (10% darker)
+      const darkenColor = (hex, percent) => {
+        const num = parseInt(hex.replace("#", ""), 16);
+        const amt = Math.round(2.55 * percent);
+        const R = Math.max(0, Math.min(255, (num >> 16) + amt));
+        const G = Math.max(0, Math.min(255, (num >> 8 & 0x00FF) + amt));
+        const B = Math.max(0, Math.min(255, (num & 0x0000FF) + amt));
+        return "#" + ((R << 16) | (G << 8) | B).toString(16).padStart(6, '0');
+      };
+      
+      document.documentElement.style.setProperty('--brand-primary-hover', darkenColor(config.primaryColor, -25));
+      document.documentElement.style.setProperty('--brand-secondary-hover', darkenColor(config.secondaryColor, -25));
+      document.documentElement.style.setProperty('--brand-accent-hover', darkenColor(config.accentColor, -25));
+      
+      // Set text colors (same as base colors for now)
+      document.documentElement.style.setProperty('--brand-primary-text', config.primaryColor);
+      document.documentElement.style.setProperty('--brand-secondary-text', config.secondaryColor);
+      document.documentElement.style.setProperty('--brand-accent-text', config.accentColor);
+    }
+    
+    // Get the components
     const components = generateComponentLibrary(config);
     setGeneratedComponents(components);
 
@@ -83,7 +112,7 @@ function App() {
           {currentStep === 'preview' && brandConfig && generatedComponents && (
             <ComponentPreview 
               brandConfig={brandConfig}
-              components={generatedComponents}
+              componentLibrary={generatedComponents}
               onBack={handleBackToInput}
               onExport={handleExport}
             />

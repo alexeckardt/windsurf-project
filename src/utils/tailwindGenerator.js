@@ -15,15 +15,6 @@ export const generateTailwindClasses = (brandConfig) => {
   console.log('generateTailwindClasses input:', brandConfig);
   console.log('primaryColor:', primaryColor);
 
-  // Convert hex colors to Tailwind-compatible format
-  const colorToTailwind = (hexColor, type = 'bg') => {
-    // For now, we'll use the hex color directly with arbitrary values
-    // In a real implementation, you might want to find the closest Tailwind color
-    const result = `${type}-[${hexColor}]`;
-    console.log(`colorToTailwind(${hexColor}, ${type}) = ${result}`);
-    return result;
-  };
-
   const getBorderRadius = () => {
     switch (borderRadius) {
       case 'small': return 'rounded';
@@ -63,15 +54,19 @@ export const generateTailwindClasses = (brandConfig) => {
   const spacingConfig = getSpacing();
 
   return {
-    primary: colorToTailwind(primaryColor, 'bg'),
-    primaryText: colorToTailwind(primaryColor, 'text'),
-    primaryBorder: colorToTailwind(primaryColor, 'border'),
-    secondary: colorToTailwind(secondaryColor, 'bg'),
-    secondaryText: colorToTailwind(secondaryColor, 'text'),
-    secondaryBorder: colorToTailwind(secondaryColor, 'border'),
-    accent: colorToTailwind(accentColor, 'bg'),
-    accentText: colorToTailwind(accentColor, 'text'),
-    accentBorder: colorToTailwind(accentColor, 'border'),
+
+    // Base Colors
+    primary: 'bg-brand-primary',
+    primaryText: 'text-brand-primary',
+    primaryBorder: 'border border-brand-primary',
+    secondary: 'bg-brand-secondary',
+    secondaryText: 'text-brand-secondary-text',
+    secondaryBorder: 'border border-brand-secondary',
+    accent: 'bg-brand-accent',
+    accentText: 'text-brand-accent-text',
+    accentBorder: 'border border-brand-accent',
+    
+    // Base Styles
     borderRadius: getBorderRadius(),
     buttonRadius: getButtonStyle(),
     spacing: spacingConfig,
@@ -79,14 +74,17 @@ export const generateTailwindClasses = (brandConfig) => {
     fontFamily: `font-['${fontFamily}']`,
     
     // Hover states
-    primaryHover: colorToTailwind(adjustColorBrightness(primaryColor, -10), 'hover:bg'),
-    secondaryHover: colorToTailwind(adjustColorBrightness(secondaryColor, -10), 'hover:bg'),
-    accentHover: colorToTailwind(adjustColorBrightness(accentColor, -10), 'hover:bg'),
+    primaryHover: 'hover:bg-brand-primary',
+    primaryHoverDark: 'hover:bg-brand-primary-hover',
+    secondaryHover: 'hover:bg-brand-secondary',
+    secondaryHoverDark: 'hover:bg-brand-secondary-hover',
+    accentHover: 'hover:bg-brand-accent',
+    accentHoverDark: 'hover:bg-brand-accent-hover',
     
     // Focus states
-    primaryFocus: `focus:ring-[${primaryColor}]`,
-    secondaryFocus: `focus:ring-[${secondaryColor}]`,
-    accentFocus: `focus:ring-[${accentColor}]`,
+    primaryFocus: 'focus:ring-brand-primary',
+    secondaryFocus: 'focus:ring-brand-secondary',
+    accentFocus: 'focus:ring-brand-accent',
   };
 };
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { generateComponentLibrary } from '../utils/componentGenerator';
+import { generateComponentLibrary } from '../utils/componentGenerator.ts';
 import { cva } from 'class-variance-authority';
 import ComponentExporter from './ComponentExporter';
 import { clsx } from 'clsx';
@@ -41,13 +41,15 @@ const getComponentVariants = (components) => {
 
 // This function is no longer needed since we extract variants from variantConfig
 
-const ComponentPreview = ({ brandConfig, components, onBack, onExport }) => {
+const ComponentPreview = ({ brandConfig, componentLibrary, onBack, onExport }) => {
   const [showCode, setShowCode] = useState({});
   const [expandedSections, setExpandedSections] = useState({});
 
+  const { components } = componentLibrary;
+
   // Extract component variants dynamically from the generated components
-  console.log("Components structure:", components);
-  const ComponentVariants = getComponentVariants(components);
+  console.log("Components structure:", componentLibrary);
+  const ComponentVariants = getComponentVariants(componentLibrary);
   console.log("Found variants", ComponentVariants);
 
   // Inject magic animations CSS
@@ -120,19 +122,23 @@ const ComponentPreview = ({ brandConfig, components, onBack, onExport }) => {
     setExpandedSections(prev => ({ ...prev, [componentType]: !prev[componentType] }));
   };
 
-  const renderVariantPreview = (componentType, variantName, variant) => {
-    const key = `${componentType}-${variantName}`;
+  const renderVariantPreview = (componentType, component) => {
+
+    const {name, description, variantConfig} = component;
+    const key = `${componentType}-${name}`;
+
+    console.log("Rendering", componentType, component)
 
     return (
-      <div key={variantName} className="border border-gray-200 rounded-lg overflow-hidden">
+      <div key={key} className="border border-gray-200 rounded-lg overflow-hidden">
         <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-medium text-gray-900">{variantName}</h4>
-              <p className="text-sm text-gray-600">{variant.description}</p>
+              <h4 className="font-medium text-gray-900">{name}</h4>
+              <p className="text-sm text-gray-600">{description}</p>
             </div>
             <button
-              onClick={() => toggleCode(componentType, variantName)}
+              onClick={() => toggleCode(componentType, name)}
               className="text-xs px-2 py-1 bg-white border border-gray-300 rounded hover:bg-gray-50 transition-colors"
             >
               {showCode[key] ? 'Hide' : 'Code'}
@@ -142,7 +148,7 @@ const ComponentPreview = ({ brandConfig, components, onBack, onExport }) => {
 
         <div className="p-4">
           <div className="bg-white border border-gray-100 rounded-lg p-4 mb-4">
-            {renderComponentSamples(componentType, variantName, variant)}
+            {renderComponentSamples(componentType, name, variantConfig)}
           </div>
 
           {showCode[key] && (
@@ -153,7 +159,7 @@ const ComponentPreview = ({ brandConfig, components, onBack, onExport }) => {
                 className="rounded-lg text-xs"
                 customStyle={{ fontSize: '11px', maxHeight: '300px' }}
               >
-                {variant.code}
+                {component.code}
               </SyntaxHighlighter>
             </div>
           )}
@@ -162,7 +168,7 @@ const ComponentPreview = ({ brandConfig, components, onBack, onExport }) => {
     );
   };
 
-  const renderComponentSamples = (componentType, variantName, variant) => {
+  const renderComponentSamples = (componentType, variantName, variantObject) => {
     switch (componentType) {
       case 'Button':
         const buttonVariants = ComponentVariants.Button?.variant || ['primary'];
@@ -178,7 +184,7 @@ const ComponentPreview = ({ brandConfig, components, onBack, onExport }) => {
                     variant={buttonVariant}
                     props={{ children: buttonVariant, size: 'md' }}
                     brandConfig={brandConfig}
-                    components={components}
+                    components={componentLibrary}
                   />
                 )
               })}
@@ -189,7 +195,7 @@ const ComponentPreview = ({ brandConfig, components, onBack, onExport }) => {
                 variant={variantName}
                 props={{ children: 'Disabled', disabled: true }}
                 brandConfig={brandConfig}
-                components={components}
+                components={componentLibrary}
               />
             </div>
           </div>
@@ -268,15 +274,17 @@ const ComponentPreview = ({ brandConfig, components, onBack, onExport }) => {
 
               <div className="space-y-8">
                 {componentList.map(componentType => {
-                  const component = components.components[componentType];
+
+                  console.log("Attempting to Render", componentType, componentLibrary)
+                  
+                  // Get the component
+                  const component = componentLibrary.components[componentType];
                   if (!component) return null;
+                  
+                  console.log("Attempting to Render", componentType, component)
 
                   return (
-
-                    Object.entries(component.variants).map(([variantName, variant]) =>
-                      renderVariantPreview(componentType, variantName, variant)
-                    )
-
+                    renderVariantPreview(componentType, component)
                   );
                 })}
               </div>
