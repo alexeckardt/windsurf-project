@@ -142,6 +142,28 @@ const generateVariantConfig = (componentType: ComponentTypes, template: Componen
       };
       break;
 
+    case 'Card':
+      config.baseClasses = `${borderRadius} ${fontFamily} transition-all duration-200 overflow-hidden`;
+      config.variants = {
+        variant: {
+          basic: `bg-white border border-gray-200 ${spacing.x} ${spacing.y}`,
+          outlined: `bg-white border-2 border-brand-primary ${spacing.x} ${spacing.y} hover:border-brand-primary-hover`,
+          elevated: `bg-white ${shadow === 'shadow-sm' ? 'shadow-lg' : shadow === 'shadow-lg' ? 'shadow-xl' : 'shadow-md'} ${spacing.x} ${spacing.y} hover:shadow-2xl transform hover:-translate-y-1`,
+          magic: `bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 text-white ${spacing.x} ${spacing.y} shadow-xl hover:shadow-2xl transform hover:scale-105 relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-white/20 before:to-transparent before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700`
+        },
+        size: {
+          sm: "p-3",
+          md: "p-4",
+          lg: "p-6",
+          xl: "p-8"
+        }
+      };
+      config.defaultVariants = {
+        variant: "basic",
+        size: "md"
+      };
+      break;
+
     default:
       // For other components, use basic configuration
       config.baseClasses = "inline-flex items-center";

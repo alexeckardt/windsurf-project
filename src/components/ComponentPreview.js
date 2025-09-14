@@ -325,17 +325,20 @@ const ComponentRenderer = ({ componentType, variant, props, brandConfig, compone
   // Render the component based on type
   switch (componentType) {
     case 'Button':
-      const { children, disabled = false } = props;
-
       return (
         <button
           className={finalClasses}
-          disabled={disabled}
+          disabled={props.disabled}
         >
-          {children}
+          {props.children}
         </button>
       );
-
+    case 'Card':
+      return (
+        <div className={finalClasses}>
+          {props.children}
+        </div>
+      );
     default:
       return (
         <div className="p-2 bg-yellow-100 text-yellow-800 rounded text-sm">
