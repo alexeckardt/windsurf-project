@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { generateComponentLibrary } from '../utils/componentGenerator.ts';
 import { cva } from 'class-variance-authority';
+import { ComponentCategories } from '../utils/componentDetails.ts';
 import ComponentExporter from './ComponentExporter';
 import { clsx } from 'clsx';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -103,15 +104,6 @@ const ComponentPreview = ({ brandConfig, componentLibrary, onBack, onExport }) =
     };
   }, []);
 
-  const componentCategories = {
-    'Interactive': ['Button'],
-    // 'Interactive': ['Button', 'Switch', 'Tabs'],
-    // 'Layout': ['Card'],
-    // 'Forms': ['Input', 'Checkbox', 'Slider', 'DatePicker', 'ColorPicker'],
-    // 'Display': ['Badge'],
-    // 'Feedback': ['Alert'],
-    // 'Overlay': ['Modal']
-  };
 
   const toggleCode = (componentType, variantName) => {
     const key = `${componentType}-${variantName}`;
@@ -124,7 +116,7 @@ const ComponentPreview = ({ brandConfig, componentLibrary, onBack, onExport }) =
 
   const renderVariantPreview = (componentType, component) => {
 
-    const {name, description, variantConfig} = component;
+    const { name, description, variantConfig } = component;
     const key = `${componentType}-${name}`;
 
     console.log("Rendering", componentType, component)
@@ -177,7 +169,7 @@ const ComponentPreview = ({ brandConfig, componentLibrary, onBack, onExport }) =
             <div className="flex flex-wrap gap-2">
               {buttonVariants.map(buttonVariant => {
                 console.log(buttonVariant);
-                return(
+                return (
                   <ComponentRenderer
                     key={buttonVariant}
                     componentType={componentType}
@@ -201,21 +193,28 @@ const ComponentPreview = ({ brandConfig, componentLibrary, onBack, onExport }) =
           </div>
         );
 
-      // Temporarily disabled for MVP - focus on Button components only
-      /*
-      case 'Modal':
-        return (
-          <div className="space-y-2">
-            <button className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm">
-              Open Modal Preview
-            </button>
-            <p className="text-xs text-gray-500">Modal components are shown in overlay</p>
-          </div>
-        );
-      */
 
       default:
-        return <div className="text-gray-500 text-sm">Only Button components are available in MVP mode</div>;
+        const objectVariants = ComponentVariants[componentType].variant || ['primary'];
+        return (
+          <div className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              {objectVariants.map(objectVariant => {
+                console.log(objectVariant);
+                return (
+                  <ComponentRenderer
+                    key={objectVariant}
+                    componentType={componentType}
+                    variant={objectVariant}
+                    props={{ children: objectVariant, size: 'md' }}
+                    brandConfig={brandConfig}
+                    components={componentLibrary}
+                  />
+                )
+              })}
+            </div>
+          </div>
+        );
     }
   };
 
@@ -265,7 +264,7 @@ const ComponentPreview = ({ brandConfig, componentLibrary, onBack, onExport }) =
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-12">
-          {Object.entries(componentCategories).map(([category, componentList]) => (
+          {Object.entries(ComponentCategories).map(([category, componentList]) => (
             <div key={category} className="space-y-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-2xl font-bold text-gray-900">{category} Components</h2>
@@ -276,11 +275,11 @@ const ComponentPreview = ({ brandConfig, componentLibrary, onBack, onExport }) =
                 {componentList.map(componentType => {
 
                   console.log("Attempting to Render", componentType, componentLibrary)
-                  
+
                   // Get the component
                   const component = componentLibrary.components[componentType];
                   if (!component) return null;
-                  
+
                   console.log("Attempting to Render", componentType, component)
 
                   return (
